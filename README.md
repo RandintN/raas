@@ -1,3 +1,5 @@
+# RAAS - Robson Cassiano as a Service
+
 A Spring Boot 3.5.9 application that implements a Model Context Protocol (MCP) server using Spring AI and Google AI Studio (Gemini) integration. This project is a personalized MCP server for Robson Cassiano.
 
 ## Features
@@ -184,7 +186,7 @@ Get overall statistics and information about Robson Cassiano's podcasts.
 
 ## Project Structure
 
-```
+```text
 src/
 ├── main/java/software/robsoncassiano/raas/
 │   ├── Application.java              # Main Spring Boot application class
