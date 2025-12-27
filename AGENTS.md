@@ -76,3 +76,10 @@ Each tool group must follow the established pattern:
 | **Fixing a Tool bug** | 1. Reproduce in `*Tests.java` -> 2. Fix in `Service` |
 | **Optimizing Performance** | 1. Implement SWR/Caching -> 2. Check Virtual Thread usage |
 | **Configuration Error** | 1. Verify Bean Validation in `Properties` -> 2. Check `.env.example` alignment |
+
+
+## 6. Security Considerations
+
+* **API Keys**: Never commit API keys to version control. Use environment variables or `.env` files and make sure to add them to `.gitignore`.
+
+* **Sensitive Data**: Never commit sensitive data to version control. Use environment variables or `.env` files and make sure to add them to `.gitignore`.
