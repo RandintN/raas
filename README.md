@@ -1,6 +1,4 @@
-# RAAS - Robson Cassiano as a Service
-
-A Spring Boot 3.5.5 application that implements a Model Context Protocol (MCP) server using Spring AI and Anthropic Claude integration. This project is a personalized MCP server for Robson Cassiano.
+A Spring Boot 3.5.9 application that implements a Model Context Protocol (MCP) server using Spring AI and Google AI Studio (Gemini) integration. This project is a personalized MCP server for Robson Cassiano.
 
 ## Features
 
@@ -11,20 +9,20 @@ A Spring Boot 3.5.5 application that implements a Model Context Protocol (MCP) s
 - **Blog Integration**: Provides MCP tools for RSS feed parsing and blog post management
 - **Speaking Integration**: Provides MCP tools for managing speaking engagements and events
 - **Newsletter Integration**: Provides MCP tools for newsletter management via Beehiiv API
-- **Podcast Integration**: Provides MCP tools for podcast management via Transistor.fm API
+- **Podcast Integration**: Provides MCP tools for podcast management via YouTube Playlists
 - **Configuration Validation**: Jakarta Bean Validation for robust configuration management
-- **Java 24**: Utilizes the latest Java features with preview support
+- **Java 25**: Utilizes the latest Java features (LTS version)
 
 ## Prerequisites
 
-- Java 24
+- Java 25
 - Maven 3.6+
 - Google AI Studio API Key (required)
 - YouTube Data API Key (optional)
 - YouTube Channel ID (optional)
 - RSS Feed URL (optional - configured in `.env` or `application.properties`)
 - Beehiiv API Key (optional)
-- Transistor.fm API Key (optional)
+- YouTube Podcast Playlist ID (optional)
 
 ## Setup
 
@@ -149,11 +147,11 @@ Get statistics and information about Robson Cassiano's newsletter publications.
 
 ### 🎙️ Podcast Tools (5 tools)
 
-Tools for podcast management via Transistor.fm API.
+Tools for podcast management via YouTube Playlists.
 
 #### podcast-get-shows
 
-Get all podcast shows hosted by Robson Cassiano on Transistor.fm.
+Get all podcast shows (YouTube Playlists) hosted by Robson Cassiano.
 
 #### podcast-get-latest-episodes
 
@@ -173,9 +171,10 @@ Get overall statistics and information about Robson Cassiano's podcasts.
 
 ## Technology Stack
 
-- **Java 24** (preview features enabled)
-- **Spring Boot 3.5.5**
-- **Spring AI 1.1.0-M3** with Anthropic integration
+- **Java 25** (LTS)
+- **Spring Boot 3.5.9**
+- **Spring Cloud 2025.0.1** (Northfields)
+- **Spring AI 1.1.0-M3** with Google AI Studio (Gemini) integration
 - **Spring AI MCP Server WebMVC**
 - **Spring Dotenv** for `.env` file support
 - **Google YouTube Data API v3**
@@ -215,7 +214,7 @@ src/
 │       │   └── model/                # Newsletter domain models
 │       └── podcast/
 │           ├── PodcastTools.java     # MCP tools for podcast operations
-│           ├── PodcastService.java   # Transistor.fm API service layer
+│           ├── PodcastService.java   # YouTube Playlist service layer
 │           └── model/                # Podcast domain models
 ├── main/resources/
 │   └── application.properties        # Application and MCP server configuration
@@ -247,7 +246,7 @@ ANTHROPIC_API_KEY=your_key
 YOUTUBE_API_KEY=your_key
 YOUTUBE_CHANNEL_ID=your_id
 BEEHIIV_API_KEY=your_key
-TRANSISTOR_API_KEY=your_key
+YOUTUBE_PODCAST_PLAYLIST_ID=your_playlist_id
 ```
 
 ### Feature-based Loading
