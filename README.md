@@ -244,7 +244,7 @@ raas.blog.rss-url=${BLOG_RSS_URL:https://robsoncassiano.com/rss.xml}
 Configure your server using a `.env` file:
 
 ```env
-ANTHROPIC_API_KEY=your_key
+GOOGLE_AI_API_KEY=your_key
 YOUTUBE_API_KEY=your_key
 YOUTUBE_CHANNEL_ID=your_id
 BEEHIIV_API_KEY=your_key
