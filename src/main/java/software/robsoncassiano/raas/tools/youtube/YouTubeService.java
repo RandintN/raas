@@ -25,7 +25,7 @@ import java.util.List;
  * Service for interacting with the YouTube Data API v3
  */
 @Service
-@ConditionalOnProperty(name = {"dvaas.youtube.api-key", "dvaas.youtube.channel-id"})
+@ConditionalOnProperty(name = { "raas.youtube.api-key", "raas.youtube.channel-id" })
 public class YouTubeService {
 
     private static final Logger logger = LoggerFactory.getLogger(YouTubeService.class);
@@ -73,8 +73,7 @@ public class YouTubeService {
                     stats.getViewCount() != null ? stats.getViewCount().longValue() : 0,
                     stats.getVideoCount() != null ? stats.getVideoCount().longValue() : 0,
                     parseDateTime(snippet.getPublishedAt().toString()),
-                    stats.getHiddenSubscriberCount() != null && stats.getHiddenSubscriberCount()
-            );
+                    stats.getHiddenSubscriberCount() != null && stats.getHiddenSubscriberCount());
         } catch (IOException e) {
             logger.error("Error fetching channel stats", e);
             throw new RuntimeException("Failed to fetch channel statistics", e);
@@ -165,7 +164,8 @@ public class YouTubeService {
     }
 
     private List<Video> convertPlaylistItemsToVideoInfo(List<PlaylistItem> items) {
-        if (items == null) return new ArrayList<>();
+        if (items == null)
+            return new ArrayList<>();
 
         return items.stream()
                 .map(this::convertPlaylistItemToVideoInfo)
@@ -185,8 +185,10 @@ public class YouTubeService {
         );
     }
 
-    private List<Video> convertSearchResultsToVideoInfo(List<com.google.api.services.youtube.model.SearchResult> items) {
-        if (items == null) return new ArrayList<>();
+    private List<Video> convertSearchResultsToVideoInfo(
+            List<com.google.api.services.youtube.model.SearchResult> items) {
+        if (items == null)
+            return new ArrayList<>();
 
         return items.stream()
                 .map(this::convertSearchResultToVideoInfo)
@@ -207,7 +209,8 @@ public class YouTubeService {
     }
 
     private List<Video> getVideoStatistics(List<Video> videos) throws IOException {
-        if (videos.isEmpty()) return videos;
+        if (videos.isEmpty())
+            return videos;
 
         List<String> videoIds = videos.stream().map(Video::id).toList();
 
@@ -236,14 +239,57 @@ public class YouTubeService {
                                 stats.getViewCount() != null ? stats.getViewCount().longValue() : 0,
                                 stats.getLikeCount() != null ? stats.getLikeCount().longValue() : 0,
                                 stats.getCommentCount() != null ? stats.getCommentCount().longValue() : 0,
-                                youtubeVideo.getContentDetails() != null ?
-                                    youtubeVideo.getContentDetails().getDuration() : null,
-                                video.thumbnailUrl()
-                        );
+                                youtubeVideo.getContentDetails() != null
+                                        ? youtubeVideo.getContentDetails().getDuration()
+                                        : null,
+                                video.thumbnailUrl());
                     }
                     return video;
                 })
                 .toList();
+    }
+
+    /**
+     * Get videos from a specific playlist
+     */
+    public List<Video> getVideosFromPlaylist(String playlistId, int maxResults) {
+        try {
+            YouTube.PlaylistItems.List request = youtube.playlistItems()
+                    .list(List.of("snippet", "contentDetails"))
+                    .setPlaylistId(playlistId)
+                    .setMaxResults((long) Math.min(maxResults, 50))
+                    .setKey(youTubeProperties.apiKey());
+
+            PlaylistItemListResponse response = request.execute();
+
+            return convertPlaylistItemsToVideoInfo(response.getItems());
+        } catch (IOException e) {
+            logger.error("Error fetching videos from playlist: {}", playlistId, e);
+            throw new RuntimeException("Failed to fetch videos from playlist: " + playlistId, e);
+        }
+    }
+
+    /**
+     * Get playlist details
+     */
+    public Playlist getPlaylistDetails(String playlistId) {
+        try {
+            YouTube.Playlists.List request = youtube.playlists()
+                    .list(List.of("snippet", "contentDetails", "status"))
+                    .setId(List.of(playlistId))
+                    .setKey(youTubeProperties.apiKey());
+
+            PlaylistListResponse response = request.execute();
+
+            if (response.getItems() == null || response.getItems().isEmpty()) {
+                throw new RuntimeException("Playlist not found: " + playlistId);
+            }
+
+            return response.getItems().get(0);
+        } catch (IOException e) {
+            logger.error("Error fetching playlist details: {}", playlistId, e);
+            throw new RuntimeException("Failed to fetch playlist details: " + playlistId, e);
+        }
     }
 
     private LocalDateTime parseDateTime(String dateTimeString) {

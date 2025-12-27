@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SpringBootTest
 @ActiveProfiles("integration")
-@ConditionalOnProperty(name = {"dvaas.youtube.api-key", "dvaas.youtube.channel-id"})
+@ConditionalOnProperty(name = { "raas.youtube.api-key", "raas.youtube.channel-id" })
 class YouTubeServiceIntegrationTest {
 
     @Autowired
@@ -68,14 +68,12 @@ class YouTubeServiceIntegrationTest {
         assertTrue(firstVideo.title().length() > 0, "Video title should not be empty");
         assertNotNull(firstVideo.publishedAt(), "Published date should not be null");
         assertTrue(firstVideo.getYouTubeUrl().startsWith("https://www.youtube.com/"),
-                  "Should be valid YouTube URL");
+                "Should be valid YouTube URL");
 
         System.out.printf("✅ Latest Videos Test Passed:%n");
         System.out.printf("   Retrieved %d videos%n", videos.size());
-        videos.forEach(video ->
-            System.out.printf("   - %s (Published: %s)%n",
-                video.title(), video.publishedAt().toLocalDate())
-        );
+        videos.forEach(video -> System.out.printf("   - %s (Published: %s)%n",
+                video.title(), video.publishedAt().toLocalDate()));
     }
 
     @Test
@@ -92,13 +90,11 @@ class YouTubeServiceIntegrationTest {
             assertNotNull(firstVideo.id(), "Video ID should not be null");
             assertNotNull(firstVideo.title(), "Video title should not be null");
             assertTrue(firstVideo.getYouTubeUrl().startsWith("https://www.youtube.com/"),
-                      "Should be valid YouTube URL");
+                    "Should be valid YouTube URL");
 
             System.out.printf("✅ Search Videos Test Passed:%n");
             System.out.printf("   Found %d videos for 'spring'%n", result.size());
-            result.forEach(video ->
-                System.out.printf("   - %s%n", video.title())
-            );
+            result.forEach(video -> System.out.printf("   - %s%n", video.title()));
         } else {
             System.out.printf("ℹ️ Search Videos Test: No results found for 'spring'%n");
         }
@@ -120,22 +116,20 @@ class YouTubeServiceIntegrationTest {
             assertNotNull(firstVideo.id(), "Video ID should not be null");
             assertNotNull(firstVideo.title(), "Video title should not be null");
             assertTrue(firstVideo.getYouTubeUrl().startsWith("https://www.youtube.com/"),
-                      "Should be valid YouTube URL");
+                    "Should be valid YouTube URL");
 
             // Verify videos are sorted by view count (descending)
             if (topVideos.size() > 1) {
                 Video first = topVideos.get(0);
                 Video second = topVideos.get(1);
                 assertTrue(first.viewCount() >= second.viewCount(),
-                          "Videos should be sorted by view count (descending)");
+                        "Videos should be sorted by view count (descending)");
             }
 
             System.out.printf("✅ Top Videos Test Passed:%n");
             System.out.printf("   Retrieved %d top videos%n", topVideos.size());
-            topVideos.forEach(video ->
-                System.out.printf("   - %s (%s views)%n",
-                    video.title(), video.getFormattedViewCount())
-            );
+            topVideos.forEach(video -> System.out.printf("   - %s (%s views)%n",
+                    video.title(), video.getFormattedViewCount()));
         } else {
             System.out.printf("ℹ️ Top Videos Test: No videos found%n");
         }

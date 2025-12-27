@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * Supports multiple publications (e.g., danvega, bytesizedai)
  */
 @Service
-@ConditionalOnProperty(name = "dvaas.newsletter.api-key")
+@ConditionalOnProperty(name = "raas.newsletter.api-key")
 public class NewsletterService {
 
     private static final Logger logger = LoggerFactory.getLogger(NewsletterService.class);
@@ -58,7 +58,8 @@ public class NewsletterService {
         }
 
         if (!newsletterProperties.hasPublication(publication)) {
-            throw new IllegalArgumentException("Unknown publication: " + publication + ". Available: " + newsletterProperties.getPublicationNames());
+            throw new IllegalArgumentException("Unknown publication: " + publication + ". Available: "
+                    + newsletterProperties.getPublicationNames());
         }
 
         List<Post> allPosts = getCachedPosts(publication);
@@ -66,9 +67,12 @@ public class NewsletterService {
                 .sorted((p1, p2) -> {
                     LocalDateTime date1 = p1.getEffectivePublishDate();
                     LocalDateTime date2 = p2.getEffectivePublishDate();
-                    if (date1 == null && date2 == null) return 0;
-                    if (date1 == null) return 1;
-                    if (date2 == null) return -1;
+                    if (date1 == null && date2 == null)
+                        return 0;
+                    if (date1 == null)
+                        return 1;
+                    if (date2 == null)
+                        return -1;
                     return date2.compareTo(date1);
                 })
                 .limit(Math.min(maxResults, 50))
@@ -91,9 +95,12 @@ public class NewsletterService {
                 .sorted((p1, p2) -> {
                     LocalDateTime date1 = p1.getEffectivePublishDate();
                     LocalDateTime date2 = p2.getEffectivePublishDate();
-                    if (date1 == null && date2 == null) return 0;
-                    if (date1 == null) return 1;
-                    if (date2 == null) return -1;
+                    if (date1 == null && date2 == null)
+                        return 0;
+                    if (date1 == null)
+                        return 1;
+                    if (date2 == null)
+                        return -1;
                     return date2.compareTo(date1);
                 })
                 .limit(Math.min(maxResults, 50))
@@ -111,9 +118,12 @@ public class NewsletterService {
                     .sorted((p1, p2) -> {
                         LocalDateTime date1 = p1.getEffectivePublishDate();
                         LocalDateTime date2 = p2.getEffectivePublishDate();
-                        if (date1 == null && date2 == null) return 0;
-                        if (date1 == null) return 1;
-                        if (date2 == null) return -1;
+                        if (date1 == null && date2 == null)
+                            return 0;
+                        if (date1 == null)
+                            return 1;
+                        if (date2 == null)
+                            return -1;
                         return date2.compareTo(date1);
                     })
                     .limit(Math.min(maxResults, 50))
@@ -125,9 +135,12 @@ public class NewsletterService {
                 .sorted((p1, p2) -> {
                     LocalDateTime date1 = p1.getEffectivePublishDate();
                     LocalDateTime date2 = p2.getEffectivePublishDate();
-                    if (date1 == null && date2 == null) return 0;
-                    if (date1 == null) return 1;
-                    if (date2 == null) return -1;
+                    if (date1 == null && date2 == null)
+                        return 0;
+                    if (date1 == null)
+                        return 1;
+                    if (date2 == null)
+                        return -1;
                     return date2.compareTo(date1);
                 })
                 .limit(Math.min(maxResults, 50))
@@ -139,7 +152,8 @@ public class NewsletterService {
      */
     public PublicationStats getPublicationStats(String publication) {
         if (!"all".equalsIgnoreCase(publication) && !newsletterProperties.hasPublication(publication)) {
-            throw new IllegalArgumentException("Unknown publication: " + publication + ". Available: " + newsletterProperties.getPublicationNames());
+            throw new IllegalArgumentException("Unknown publication: " + publication + ". Available: "
+                    + newsletterProperties.getPublicationNames());
         }
 
         List<Post> posts = getPostsForPublication(publication);
@@ -187,8 +201,7 @@ public class NewsletterService {
                 0L,
                 totalOpens,
                 totalClicks,
-                createdAt
-        );
+                createdAt);
     }
 
     /**
@@ -200,7 +213,8 @@ public class NewsletterService {
         }
 
         if (!newsletterProperties.hasPublication(publication)) {
-            throw new IllegalArgumentException("Unknown publication: " + publication + ". Available: " + newsletterProperties.getPublicationNames());
+            throw new IllegalArgumentException("Unknown publication: " + publication + ". Available: "
+                    + newsletterProperties.getPublicationNames());
         }
 
         return getCachedPosts(publication);
@@ -220,9 +234,12 @@ public class NewsletterService {
                 .sorted((p1, p2) -> {
                     LocalDateTime date1 = p1.getEffectivePublishDate();
                     LocalDateTime date2 = p2.getEffectivePublishDate();
-                    if (date1 == null && date2 == null) return 0;
-                    if (date1 == null) return 1;
-                    if (date2 == null) return -1;
+                    if (date1 == null && date2 == null)
+                        return 0;
+                    if (date1 == null)
+                        return 1;
+                    if (date2 == null)
+                        return -1;
                     return date2.compareTo(date1);
                 })
                 .limit(Math.min(maxResults, 50))
@@ -259,14 +276,17 @@ public class NewsletterService {
     private boolean needsCacheRefresh(String cacheKey) {
         LocalDateTime lastCacheTime = cacheTimestamps.get(cacheKey);
         return lastCacheTime == null ||
-               ChronoUnit.MINUTES.between(lastCacheTime, LocalDateTime.now()) >= newsletterProperties.getCacheDurationMinutes() ||
-               !cache.containsKey(cacheKey);
+                ChronoUnit.MINUTES.between(lastCacheTime, LocalDateTime.now()) >= newsletterProperties
+                        .getCacheDurationMinutes()
+                ||
+                !cache.containsKey(cacheKey);
     }
 
     /**
      * Fetch posts from Beehiiv API
      */
-    private List<Post> fetchPostsFromApi(String publicationId, String publicationName) throws IOException, InterruptedException {
+    private List<Post> fetchPostsFromApi(String publicationId, String publicationName)
+            throws IOException, InterruptedException {
         String url = String.format("%s/publications/%s/posts?limit=50&order_by=publish_date&direction=desc",
                 newsletterProperties.baseUrl(), publicationId);
 
@@ -287,9 +307,9 @@ public class NewsletterService {
 
         // Parse JSON response
         Map<String, Object> apiResponse = objectMapper.readValue(
-            response.body(),
-            new TypeReference<Map<String, Object>>() {}
-        );
+                response.body(),
+                new TypeReference<Map<String, Object>>() {
+                });
 
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> postsData = (List<Map<String, Object>>) apiResponse.get("data");
@@ -307,7 +327,8 @@ public class NewsletterService {
             }
         }
 
-        logger.info("Successfully parsed {} posts from Beehiiv API for publication '{}'", posts.size(), publicationName);
+        logger.info("Successfully parsed {} posts from Beehiiv API for publication '{}'", posts.size(),
+                publicationName);
         return posts;
     }
 
@@ -345,8 +366,8 @@ public class NewsletterService {
                 if (freeWebContent != null) {
                     String fullContent = freeWebContent.toString();
                     contentPreview = fullContent.length() > 200
-                        ? fullContent.substring(0, 200) + "..."
-                        : fullContent;
+                            ? fullContent.substring(0, 200) + "..."
+                            : fullContent;
                 }
             }
 
@@ -386,8 +407,7 @@ public class NewsletterService {
                     platform,
                     audience,
                     contentTags,
-                    stats
-            );
+                    stats);
         } catch (Exception e) {
             logger.warn("Failed to convert API data to Post: {}", e.getMessage());
             return null;
@@ -413,11 +433,11 @@ public class NewsletterService {
 
             // Beehiiv API may return ISO 8601 format
             DateTimeFormatter[] formatters = {
-                DateTimeFormatter.ISO_DATE_TIME,
-                DateTimeFormatter.ISO_LOCAL_DATE_TIME,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    DateTimeFormatter.ISO_DATE_TIME,
+                    DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             };
 
             for (DateTimeFormatter formatter : formatters) {
@@ -441,7 +461,8 @@ public class NewsletterService {
      */
     private long getLongValue(Map<String, Object> map, String key) {
         Object value = map.get(key);
-        if (value == null) return 0L;
+        if (value == null)
+            return 0L;
         if (value instanceof Number) {
             return ((Number) value).longValue();
         }

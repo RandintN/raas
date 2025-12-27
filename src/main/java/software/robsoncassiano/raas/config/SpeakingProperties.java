@@ -11,7 +11,7 @@ import java.time.Duration;
 /**
  * Configuration properties for speaking content API integration
  */
-@ConfigurationProperties(prefix = "dvaas.speaking")
+@ConfigurationProperties(prefix = "raas.speaking")
 @Validated
 public record SpeakingProperties(
 
@@ -19,16 +19,13 @@ public record SpeakingProperties(
          * Speaking API endpoint URL
          * Must be a valid, non-empty URL starting with http:// or https://
          */
-        @NotBlank(message = "Speaking API URL must not be blank")
-        @Pattern(regexp = "^https?://.*", message = "Speaking API URL must start with http:// or https://")
-        String apiUrl,
+        @NotBlank(message = "Speaking API URL must not be blank") @Pattern(regexp = "^https?://.*", message = "Speaking API URL must start with http:// or https://") String apiUrl,
 
         /**
          * Cache duration for speaking data
          * Must be at least 1 minute, default: 30 minutes
          */
-        @NotNull(message = "Speaking cache duration must not be null")
-        Duration cacheDuration
+        @NotNull(message = "Speaking cache duration must not be null") Duration cacheDuration
 
 ) {
 
@@ -42,7 +39,8 @@ public record SpeakingProperties(
 
         // Custom validation: cache duration must be at least 1 minute
         if (cacheDuration.toMinutes() < 1) {
-            throw new IllegalArgumentException("Speaking cache duration must be at least 1 minute, got: " + cacheDuration);
+            throw new IllegalArgumentException(
+                    "Speaking cache duration must be at least 1 minute, got: " + cacheDuration);
         }
     }
 

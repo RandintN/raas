@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
  * Service for parsing and managing blog RSS feed data
  */
 @Service
-@ConditionalOnProperty(name = "dvaas.blog.rss-url")
+@ConditionalOnProperty(name = "raas.blog.rss-url")
 public class BlogService {
 
     private static final Logger logger = LoggerFactory.getLogger(BlogService.class);
@@ -127,7 +128,7 @@ public class BlogService {
 
         int postsThisMonth = (int) allPosts.stream()
                 .filter(post -> post.publishedAt().getYear() == currentYear &&
-                               post.publishedAt().getMonthValue() == currentMonth)
+                        post.publishedAt().getMonthValue() == currentMonth)
                 .count();
 
         // Calculate average posts per month
@@ -143,15 +144,14 @@ public class BlogService {
         String mostCommonTag = findMostCommonTag(allPosts);
 
         return new BlogStats(
-            allPosts.size(),
-            firstPost,
-            latestPost,
-            postsThisYear,
-            postsThisMonth,
-            averagePostsPerMonth,
-            postsWithVideos,
-            mostCommonTag
-        );
+                allPosts.size(),
+                firstPost,
+                latestPost,
+                postsThisYear,
+                postsThisMonth,
+                averagePostsPerMonth,
+                postsWithVideos,
+                mostCommonTag);
     }
 
     /**
@@ -181,8 +181,10 @@ public class BlogService {
      */
     private boolean needsCacheRefresh() {
         return lastCacheTime == null ||
-               ChronoUnit.MINUTES.between(lastCacheTime, LocalDateTime.now()) >= blogProperties.getCacheDurationMinutes() ||
-               !cache.containsKey("posts");
+                ChronoUnit.MINUTES.between(lastCacheTime, LocalDateTime.now()) >= blogProperties
+                        .getCacheDurationMinutes()
+                ||
+                !cache.containsKey("posts");
     }
 
     /**
@@ -192,7 +194,8 @@ public class BlogService {
         logger.info("Fetching RSS feed from: {}", blogProperties.rssUrl());
 
         SyndFeedInput input = new SyndFeedInput();
-        SyndFeed feed = input.build(new XmlReader(new URL(blogProperties.rssUrl())));
+        URL url = URI.create(blogProperties.rssUrl()).toURL();
+        SyndFeed feed = input.build(new XmlReader(url.openStream()));
 
         List<BlogPost> posts = new ArrayList<>();
 
@@ -218,9 +221,9 @@ public class BlogService {
             String description = entry.getDescription() != null ? entry.getDescription().getValue() : "";
             String author = entry.getAuthor();
 
-            LocalDateTime publishedAt = entry.getPublishedDate() != null ?
-                entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime() :
-                LocalDateTime.now();
+            LocalDateTime publishedAt = entry.getPublishedDate() != null
+                    ? entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                    : LocalDateTime.now();
 
             // Extract YouTube video URL if present in description or content
             String youtubeUrl = extractYouTubeUrl(description);
@@ -256,13 +259,14 @@ public class BlogService {
      * Extract YouTube video URL from content
      */
     private String extractYouTubeUrl(String content) {
-        if (content == null) return null;
+        if (content == null)
+            return null;
 
         // Look for YouTube URLs in the content
         String[] patterns = {
-            "https://www.youtube.com/watch\\?v=([a-zA-Z0-9_-]+)",
-            "https://youtu.be/([a-zA-Z0-9_-]+)",
-            "youtube.com/embed/([a-zA-Z0-9_-]+)"
+                "https://www.youtube.com/watch\\?v=([a-zA-Z0-9_-]+)",
+                "https://youtu.be/([a-zA-Z0-9_-]+)",
+                "youtube.com/embed/([a-zA-Z0-9_-]+)"
         };
 
         for (String pattern : patterns) {
@@ -283,12 +287,11 @@ public class BlogService {
         String content = (title + " " + (description != null ? description : "")).toLowerCase();
 
         List<String> commonTechTerms = List.of(
-            "spring", "java", "boot", "ai", "graphql", "react", "vue", "docker",
-            "kubernetes", "microservices", "rest", "api", "jwt", "security",
-            "testing", "junit", "maven", "gradle", "git", "devops", "cloud",
-            "aws", "azure", "gcp", "database", "sql", "nosql", "mongodb",
-            "redis", "elasticsearch", "kafka", "rabbitmq", "jpa", "hibernate"
-        );
+                "spring", "java", "boot", "ai", "graphql", "react", "vue", "docker",
+                "kubernetes", "microservices", "rest", "api", "jwt", "security",
+                "testing", "junit", "maven", "gradle", "git", "devops", "cloud",
+                "aws", "azure", "gcp", "database", "sql", "nosql", "mongodb",
+                "redis", "elasticsearch", "kafka", "rabbitmq", "jpa", "hibernate");
 
         return commonTechTerms.stream()
                 .filter(tag -> content.contains(tag))

@@ -13,7 +13,7 @@ import java.util.Map;
  * Configuration properties for newsletter API integration
  * Supports multiple publications (e.g., danvega, bytesizedai) via Beehiiv API
  */
-@ConfigurationProperties(prefix = "dvaas.newsletter")
+@ConfigurationProperties(prefix = "raas.newsletter")
 @Validated
 public record NewsletterProperties(
 
@@ -21,30 +21,25 @@ public record NewsletterProperties(
          * Newsletter API key for authentication
          * Must be a valid, non-empty API key
          */
-        @NotBlank(message = "Newsletter API key must not be blank")
-        String apiKey,
+        @NotBlank(message = "Newsletter API key must not be blank") String apiKey,
 
         /**
          * Base URL for newsletter API
          * Must be a valid, non-empty URL starting with http:// or https://
          */
-        @NotBlank(message = "Newsletter base URL must not be blank")
-        @Pattern(regexp = "^https?://.*", message = "Newsletter base URL must start with http:// or https://")
-        String baseUrl,
+        @NotBlank(message = "Newsletter base URL must not be blank") @Pattern(regexp = "^https?://.*", message = "Newsletter base URL must start with http:// or https://") String baseUrl,
 
         /**
          * Cache duration for newsletter data
          * Must be at least 1 minute, default: 30 minutes
          */
-        @NotNull(message = "Newsletter cache duration must not be null")
-        Duration cacheDuration,
+        @NotNull(message = "Newsletter cache duration must not be null") Duration cacheDuration,
 
         /**
          * Map of publication names to publication IDs
          * Example: {"danvega": "pub_xxx", "bytesizedai": "pub_yyy"}
          */
-        @NotNull(message = "Newsletter publications map must not be null")
-        Map<String, String> publications
+        @NotNull(message = "Newsletter publications map must not be null") Map<String, String> publications
 
 ) {
 
@@ -62,7 +57,8 @@ public record NewsletterProperties(
 
         // Custom validation: cache duration must be at least 1 minute
         if (cacheDuration.toMinutes() < 1) {
-            throw new IllegalArgumentException("Newsletter cache duration must be at least 1 minute, got: " + cacheDuration);
+            throw new IllegalArgumentException(
+                    "Newsletter cache duration must be at least 1 minute, got: " + cacheDuration);
         }
 
         // Validate publications map is not empty
@@ -73,7 +69,8 @@ public record NewsletterProperties(
         // Validate all publication IDs are not blank
         for (Map.Entry<String, String> entry : publications.entrySet()) {
             if (entry.getValue() == null || entry.getValue().trim().isEmpty()) {
-                throw new IllegalArgumentException("Newsletter publication ID for '" + entry.getKey() + "' must not be blank");
+                throw new IllegalArgumentException(
+                        "Newsletter publication ID for '" + entry.getKey() + "' must not be blank");
             }
         }
     }
@@ -90,8 +87,8 @@ public record NewsletterProperties(
      */
     public boolean isEnabled() {
         return apiKey != null && !apiKey.trim().isEmpty() &&
-               baseUrl != null && !baseUrl.trim().isEmpty() &&
-               publications != null && !publications.isEmpty();
+                baseUrl != null && !baseUrl.trim().isEmpty() &&
+                publications != null && !publications.isEmpty();
     }
 
     /**

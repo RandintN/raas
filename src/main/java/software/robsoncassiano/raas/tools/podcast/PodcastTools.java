@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * MCP tools for podcast operations via Transistor.fm
+ * MCP tools for podcast operations via YouTube Playlists
  */
 @Component
 @ConditionalOnBean(PodcastService.class)
@@ -23,35 +23,29 @@ public class PodcastTools {
         this.podcastService = podcastService;
     }
 
-    @McpTool(name = "podcast-get-shows",
-             description = "Get all podcast shows hosted by Dan Vega on Transistor.fm")
+    @McpTool(name = "podcast-get-shows", description = "Get all podcast shows (YouTube Playlists) hosted by Robson Cassiano")
     public List<Show> getShows() {
         return podcastService.getAllShows();
     }
 
-    @McpTool(name = "podcast-get-latest-episodes",
-             description = "Get the most recent podcast episodes across all shows or filtered by show name/ID. " +
-                          "Accepts show names like 'Spring Office Hours' or 'Fundamentals of Software Engineering'")
+    @McpTool(name = "podcast-get-latest-episodes", description = "Get the most recent podcast episodes (YouTube Videos) across all shows or filtered by show name/ID. "
+            +
+            "Accepts show names like 'robsoncassiano' or specific playlist names.")
     public List<Episode> getLatestEpisodes(
-            @McpToolParam(description = "Number of episodes to retrieve (default: 10, max: 50)",
-                         required = false) String count,
-            @McpToolParam(description = "Filter by show name ('Spring Office Hours', 'Fundamentals of Software Engineering') or show ID",
-                         required = false) String show) {
+            @McpToolParam(description = "Number of episodes to retrieve (default: 10, max: 50)", required = false) String count,
+            @McpToolParam(description = "Filter by show name or playlist ID", required = false) String show) {
 
         int maxResults = parseCount(count, 10, 50);
         return podcastService.getLatestEpisodes(maxResults, show);
     }
 
-    @McpTool(name = "podcast-search-episodes",
-             description = "Search for podcast episodes by keyword in title or description. " +
-                          "Optionally filter by show name/ID (e.g., 'spring', 'java', 'testing')")
+    @McpTool(name = "podcast-search-episodes", description = "Search for podcast episodes by keyword in title or description. "
+            +
+            "Optionally filter by show name/ID.")
     public List<Episode> searchEpisodes(
-            @McpToolParam(description = "Keyword to search for in episode titles and descriptions",
-                         required = true) String keyword,
-            @McpToolParam(description = "Number of episodes to retrieve (default: 10, max: 50)",
-                         required = false) String count,
-            @McpToolParam(description = "Filter by show name ('Spring Office Hours', 'Fundamentals of Software Engineering') or show ID",
-                         required = false) String show) {
+            @McpToolParam(description = "Keyword to search for in episode titles and descriptions", required = true) String keyword,
+            @McpToolParam(description = "Number of episodes to retrieve (default: 10, max: 50)", required = false) String count,
+            @McpToolParam(description = "Filter by show name or playlist ID", required = false) String show) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new IllegalArgumentException("Keyword parameter is required.");
@@ -61,11 +55,9 @@ public class PodcastTools {
         return podcastService.searchEpisodes(keyword.trim(), maxResults, show);
     }
 
-    @McpTool(name = "podcast-get-episode-details",
-             description = "Get detailed information about a specific podcast episode by its ID")
+    @McpTool(name = "podcast-get-episode-details", description = "Get detailed information about a specific podcast episode by its ID")
     public Episode getEpisodeDetails(
-            @McpToolParam(description = "Episode ID to retrieve",
-                         required = true) String episodeId) {
+            @McpToolParam(description = "Episode ID to retrieve", required = true) String episodeId) {
 
         if (episodeId == null || episodeId.trim().isEmpty()) {
             throw new IllegalArgumentException("Episode ID parameter is required.");
@@ -74,9 +66,9 @@ public class PodcastTools {
         return podcastService.getEpisodeById(episodeId.trim());
     }
 
-    @McpTool(name = "podcast-get-stats",
-             description = "Get overall statistics and information about Dan Vega's podcasts, including episode counts, " +
-                          "publishing frequency, and per-show summaries")
+    @McpTool(name = "podcast-get-stats", description = "Get overall statistics and information about Robson Cassiano's podcasts, including episode counts, "
+            +
+            "publishing frequency, and per-show summaries.")
     public PodcastStats getPodcastStats() {
         return podcastService.getPodcastStats();
     }

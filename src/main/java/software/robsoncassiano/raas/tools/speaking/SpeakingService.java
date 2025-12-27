@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * Service for fetching and managing speaking engagement data
  */
 @Service
-@ConditionalOnProperty(name = "dvaas.speaking.api-url")
+@ConditionalOnProperty(name = "raas.speaking.api-url")
 public class SpeakingService {
 
     private static final Logger logger = LoggerFactory.getLogger(SpeakingService.class);
@@ -110,11 +110,12 @@ public class SpeakingService {
     /**
      * Get speaking engagements within a specific date range
      */
-    public SpeakingSearchResult getEngagementsByDateRange(LocalDateTime startDate, LocalDateTime endDate, int maxResults) {
+    public SpeakingSearchResult getEngagementsByDateRange(LocalDateTime startDate, LocalDateTime endDate,
+            int maxResults) {
         List<SpeakingEngagement> allEngagements = getCachedEngagements();
 
         String dateRangeDesc = String.format("%s to %s",
-            startDate.toLocalDate(), endDate.toLocalDate());
+                startDate.toLocalDate(), endDate.toLocalDate());
 
         List<SpeakingEngagement> matchingEngagements = allEngagements.stream()
                 .filter(engagement -> isWithinDateRange(engagement.startDate(), startDate, endDate))
@@ -181,15 +182,13 @@ public class SpeakingService {
         Map<String, Integer> locationCounts = allEngagements.stream()
                 .filter(e -> e.location() != null && !e.location().trim().isEmpty())
                 .collect(Collectors.groupingBy(
-                    e -> e.location().trim(),
-                    Collectors.summingInt(e -> 1)
-                ));
+                        e -> e.location().trim(),
+                        Collectors.summingInt(e -> 1)));
 
         Map<String, Integer> eventTypeCounts = allEngagements.stream()
                 .collect(Collectors.groupingBy(
-                    SpeakingEngagement::getEventType,
-                    Collectors.summingInt(e -> 1)
-                ));
+                        SpeakingEngagement::getEventType,
+                        Collectors.summingInt(e -> 1)));
 
         String mostCommonLocation = locationCounts.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -209,17 +208,16 @@ public class SpeakingService {
         }
 
         return new SpeakingStats(
-            allEngagements.size(),
-            (int) upcomingCount,
-            (int) pastCount,
-            firstEventDate,
-            nextEventDate,
-            mostCommonLocation,
-            mostCommonEventType,
-            locationCounts,
-            eventTypeCounts,
-            averageEventsPerMonth
-        );
+                allEngagements.size(),
+                (int) upcomingCount,
+                (int) pastCount,
+                firstEventDate,
+                nextEventDate,
+                mostCommonLocation,
+                mostCommonEventType,
+                locationCounts,
+                eventTypeCounts,
+                averageEventsPerMonth);
     }
 
     /**
@@ -249,8 +247,10 @@ public class SpeakingService {
      */
     private boolean needsCacheRefresh() {
         return lastCacheTime == null ||
-               ChronoUnit.MINUTES.between(lastCacheTime, LocalDateTime.now()) >= speakingProperties.getCacheDurationMinutes() ||
-               !cache.containsKey("engagements");
+                ChronoUnit.MINUTES.between(lastCacheTime, LocalDateTime.now()) >= speakingProperties
+                        .getCacheDurationMinutes()
+                ||
+                !cache.containsKey("engagements");
     }
 
     /**
@@ -273,9 +273,9 @@ public class SpeakingService {
 
         // Parse JSON response
         List<Map<String, Object>> apiData = objectMapper.readValue(
-            response.body(),
-            new TypeReference<List<Map<String, Object>>>() {}
-        );
+                response.body(),
+                new TypeReference<List<Map<String, Object>>>() {
+                });
 
         List<SpeakingEngagement> engagements = new ArrayList<>();
 
@@ -322,12 +322,12 @@ public class SpeakingService {
         try {
             // Try various date formats
             DateTimeFormatter[] formatters = {
-                DateTimeFormatter.ISO_LOCAL_DATE_TIME,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-                DateTimeFormatter.ofPattern("MM/dd/yyyy"),
-                DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                    DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+                    DateTimeFormatter.ofPattern("MM/dd/yyyy"),
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy")
             };
 
             for (DateTimeFormatter formatter : formatters) {
@@ -360,14 +360,15 @@ public class SpeakingService {
         String location = engagement.location() != null ? engagement.location().toLowerCase() : "";
 
         return title.contains(keyword) || description.contains(keyword) ||
-               name.contains(keyword) || location.contains(keyword);
+                name.contains(keyword) || location.contains(keyword);
     }
 
     /**
      * Check if date is within range (inclusive)
      */
     private boolean isWithinDateRange(LocalDateTime date, LocalDateTime start, LocalDateTime end) {
-        if (date == null) return false;
+        if (date == null)
+            return false;
         return !date.isBefore(start) && !date.isAfter(end);
     }
 }

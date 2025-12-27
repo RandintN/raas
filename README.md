@@ -5,7 +5,7 @@ A Spring Boot 3.5.5 application that implements a Model Context Protocol (MCP) s
 ## Features
 
 - **MCP Server**: Implements Model Context Protocol server functionality
-- **Spring AI Integration**: Uses Spring AI 1.1.0-M3 with Anthropic Claude
+- **Spring AI Integration**: Uses Spring AI 1.1.0-M3 with Google AI Studio (Gemini) integration
 - **.env Support**: Native support for `.env` files for easy configuration
 - **YouTube Integration**: Provides MCP tools for YouTube channel operations and video management
 - **Blog Integration**: Provides MCP tools for RSS feed parsing and blog post management
@@ -19,7 +19,7 @@ A Spring Boot 3.5.5 application that implements a Model Context Protocol (MCP) s
 
 - Java 24
 - Maven 3.6+
-- Anthropic API Key (required)
+- Google AI Studio API Key (required)
 - YouTube Data API Key (optional)
 - YouTube Channel ID (optional)
 - RSS Feed URL (optional - configured in `.env` or `application.properties`)
@@ -190,7 +190,7 @@ src/
 ├── main/java/software/robsoncassiano/raas/
 │   ├── Application.java              # Main Spring Boot application class
 │   ├── config/
-│   │   ├── DvaasConfiguration.java   # Main configuration class
+│   │   ├── RaasConfiguration.java   # Main configuration class
 │   │   ├── BlogProperties.java       # Blog configuration properties
 │   │   ├── YouTubeProperties.java    # YouTube configuration properties
 │   │   ├── SpeakingProperties.java   # Speaking configuration properties

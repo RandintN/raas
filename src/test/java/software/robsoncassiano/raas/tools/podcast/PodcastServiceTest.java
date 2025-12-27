@@ -4,15 +4,18 @@ import software.robsoncassiano.raas.config.PodcastProperties;
 import software.robsoncassiano.raas.tools.podcast.model.Episode;
 import software.robsoncassiano.raas.tools.podcast.model.PodcastStats;
 import software.robsoncassiano.raas.tools.podcast.model.Show;
+import software.robsoncassiano.raas.tools.youtube.YouTubeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,51 +29,29 @@ class PodcastServiceTest {
     private PodcastService podcastService;
     private PodcastProperties podcastProperties;
 
+    @Mock
+    private YouTubeService youtubeService;
+
     @BeforeEach
     void setUp() {
         podcastProperties = new PodcastProperties(
-                "test-api-key-1234567890",
-                "test-app",
                 Duration.ofMinutes(30),
-                "spring-office-hours-id",
-                "fundamentals-id"
-        );
-        podcastService = new PodcastService(podcastProperties);
+                Map.of("robsoncassiano", "playlist-123"));
+        podcastService = new PodcastService(youtubeService, podcastProperties);
     }
 
     @Test
-    void constructor_ShouldInitializeWithApiKey() {
+    void constructor_ShouldInitialize() {
         assertNotNull(podcastService);
     }
 
     @Test
-    void resolveShowIdentifier_WithSpringOfficeHours_ShouldResolveToConfiguredId() {
-        // Clear cache to ensure we're testing name resolution from config only
+    void resolveShowIdentifier_WithPlaylistName_ShouldResolveToConfiguredId() {
+        // Clear cache
         ReflectionTestUtils.setField(podcastService, "cache", new ConcurrentHashMap<>());
 
-        String result = podcastService.resolveShowIdentifier("Spring Office Hours");
-        assertEquals("spring-office-hours-id", result);
-
-        result = podcastService.resolveShowIdentifier("spring-office-hours");
-        assertEquals("spring-office-hours-id", result);
-
-        result = podcastService.resolveShowIdentifier("SOH");
-        assertEquals("spring-office-hours-id", result);
-    }
-
-    @Test
-    void resolveShowIdentifier_WithFundamentals_ShouldResolveToConfiguredId() {
-        // Clear cache to ensure we're testing name resolution from config only
-        ReflectionTestUtils.setField(podcastService, "cache", new ConcurrentHashMap<>());
-
-        String result = podcastService.resolveShowIdentifier("Fundamentals of Software Engineering");
-        assertEquals("fundamentals-id", result);
-
-        result = podcastService.resolveShowIdentifier("fundamentals");
-        assertEquals("fundamentals-id", result);
-
-        result = podcastService.resolveShowIdentifier("FSE");
-        assertEquals("fundamentals-id", result);
+        String result = podcastService.resolveShowIdentifier("robsoncassiano");
+        assertEquals("playlist-123", result);
     }
 
     @Test
@@ -82,34 +63,11 @@ class PodcastServiceTest {
 
     @Test
     void resolveShowIdentifier_WithUnknownName_ShouldReturnAsIs() {
-        // Clear cache to ensure we're testing name resolution
+        // Clear cache
         ReflectionTestUtils.setField(podcastService, "cache", new ConcurrentHashMap<>());
 
         String result = podcastService.resolveShowIdentifier("unknown-show");
         assertEquals("unknown-show", result);
-    }
-
-    @Test
-    void getLatestEpisodes_WithLimit_ShouldRespectMaxResults() {
-        // This would require more sophisticated mocking of the API calls
-        // For now, we test that the method exists and handles empty results gracefully
-        List<Episode> episodes = podcastService.getLatestEpisodes(5, null);
-        assertNotNull(episodes);
-        assertTrue(episodes.size() <= 5);
-    }
-
-    @Test
-    void searchEpisodes_WithNullKeyword_ShouldReturnEmptyList() {
-        List<Episode> result = podcastService.searchEpisodes(null, 10, null);
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void searchEpisodes_WithEmptyKeyword_ShouldReturnEmptyList() {
-        List<Episode> result = podcastService.searchEpisodes("", 10, null);
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
     }
 
     /**
@@ -153,7 +111,6 @@ class PodcastServiceTest {
      */
     @Test
     void episode_IsPublished_ShouldDetectPublishedStatus() {
-        Episode publishedEpisode = Episode.basic("1", "Test Episode", "Test Show", LocalDateTime.now());
         Episode published = new Episode("1", "Test", "Desc", "showId", "Test Show",
                 LocalDateTime.now(), null, null, "published", null, null);
         assertTrue(published.isPublished());
@@ -226,8 +183,7 @@ class PodcastServiceTest {
         List<PodcastStats.ShowSummary> summaries = List.of(
                 new PodcastStats.ShowSummary("Show A", 10, LocalDateTime.now()),
                 new PodcastStats.ShowSummary("Show B", 25, LocalDateTime.now()),
-                new PodcastStats.ShowSummary("Show C", 15, LocalDateTime.now())
-        );
+                new PodcastStats.ShowSummary("Show C", 15, LocalDateTime.now()));
 
         PodcastStats stats = new PodcastStats(3, 50, LocalDateTime.now(), "Latest Episode",
                 10, 2, 2.5, summaries);

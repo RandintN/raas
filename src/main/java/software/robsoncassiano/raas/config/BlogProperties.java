@@ -11,7 +11,7 @@ import java.time.Duration;
 /**
  * Configuration properties for blog RSS feed integration
  */
-@ConfigurationProperties(prefix = "dvaas.blog")
+@ConfigurationProperties(prefix = "raas.blog")
 @Validated
 public record BlogProperties(
 
@@ -19,16 +19,13 @@ public record BlogProperties(
          * RSS feed URL for the blog
          * Must be a valid, non-empty URL starting with http:// or https://
          */
-        @NotBlank(message = "Blog RSS URL must not be blank")
-        @Pattern(regexp = "^https?://.*", message = "Blog RSS URL must start with http:// or https://")
-        String rssUrl,
+        @NotBlank(message = "Blog RSS URL must not be blank") @Pattern(regexp = "^https?://.*", message = "Blog RSS URL must start with http:// or https://") String rssUrl,
 
         /**
          * Cache duration for RSS feed data
          * Must be at least 1 minute, default: 30 minutes
          */
-        @NotNull(message = "Blog cache duration must not be null")
-        Duration cacheDuration
+        @NotNull(message = "Blog cache duration must not be null") Duration cacheDuration
 
 ) {
 
